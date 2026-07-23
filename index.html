@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Interactive code, DSA, flowchart and complexity visualizer">
+  <title>CodeFlow Visualizer</title>
+  <style>
+    :root{--bg:#07111f;--panel:#0d1a2c;--soft:#13233a;--line:#29415f;--text:#edf6ff;--muted:#8fa5bd;--cyan:#22d3ee;--teal:#2dd4bf;--amber:#fbbf24;--red:#fb7185;--shadow:0 18px 50px #0006}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,-apple-system,Segoe UI,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
+    body.light{--bg:#edf5fb;--panel:#fff;--soft:#f4f8fc;--line:#c9d8e7;--text:#17314d;--muted:#607890;--shadow:0 18px 50px #31506b1c}
+    .app{min-height:100vh;padding:12px;display:grid;grid-template-rows:auto 1fr auto;gap:10px}.top{height:64px;border:1px solid var(--line);border-radius:14px;background:var(--panel);display:flex;align-items:center;gap:10px;padding:8px 12px;box-shadow:var(--shadow)}
+    .brand{display:flex;align-items:center;gap:9px;font-size:18px;font-weight:800;margin-right:auto}.logo{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:#00131b;background:linear-gradient(135deg,var(--cyan),var(--teal));font-size:22px}
+    .top button,.top select,.toolbar button,.toolbar select{height:40px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--text);padding:0 12px}.top button:hover,.toolbar button:hover{border-color:var(--cyan)}.primary{background:#087fb7!important;border-color:var(--cyan)!important;color:#fff!important;font-weight:750}
+    .workspace{min-height:650px;display:grid;grid-template-columns:1.08fr .95fr .92fr;gap:10px}.panel{min-width:0;border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;box-shadow:var(--shadow);display:grid;grid-template-rows:auto 1fr}.panel-head{min-height:64px;border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}.kicker{color:var(--cyan);font-size:10px;text-transform:uppercase;letter-spacing:.12em}.panel h2{font-size:16px;margin:2px 0}.toolbar{display:flex;gap:7px;align-items:center}
+    .editor-body{display:grid;grid-template-rows:1fr auto;min-height:0}.code{width:100%;height:100%;min-height:490px;resize:none;border:0;outline:0;padding:18px;background:#06101e;color:#dff7ff;font:15px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:4}.light .code{background:#f8fbfe;color:#18314a}.input-row{border-top:1px solid var(--line);padding:10px 12px;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;color:var(--muted)}.input-row input{height:38px;border:1px solid var(--line);border-radius:8px;background:var(--soft);color:var(--text);padding:0 10px}
+    .flow{padding:18px;overflow:auto;background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:24px 24px}.flow-list{display:grid;justify-items:center;gap:25px}.node{position:relative;width:min(260px,88%);min-height:56px;border:2px solid var(--line);border-radius:10px;background:var(--panel);padding:10px 14px;display:grid;place-items:center;text-align:center;font:13px/1.35 ui-monospace,monospace}.node:after{content:"↓";position:absolute;bottom:-27px;color:var(--cyan);font-size:18px}.node:last-child:after{display:none}.node.start,.node.end{border-radius:999px}.node.input,.node.output{transform:skewX(-8deg)}.node.input span,.node.output span{transform:skewX(8deg)}.node.condition{width:185px;min-height:100px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);padding:25px;background:var(--soft)}.node.active{border-color:var(--amber);box-shadow:0 0 0 3px #fbbf2433,0 0 25px #fbbf2455;color:var(--amber)}.node.done{border-color:var(--teal)}.empty{color:var(--muted);text-align:center;padding:60px 20px}
+    .inspector{overflow:auto}.tabs{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line)}.tabs button{height:46px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--muted)}.tabs button.active{color:var(--text);border-color:var(--cyan)}.view{padding:14px}.stage{border:1px solid var(--line);border-radius:11px;background:var(--soft);padding:14px;margin-bottom:10px}.stage small{color:var(--cyan)}.stage h3{margin:5px 0 7px;font-size:14px}.stage p{margin:0;color:var(--muted)}.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.metric{border:1px solid var(--line);border-radius:11px;background:var(--soft);padding:13px}.metric span{color:var(--muted);font-size:10px;text-transform:uppercase}.metric strong{display:block;color:var(--cyan);font:800 26px ui-monospace,monospace}.metric.space strong{color:var(--amber)}.bars{height:165px;border:1px solid var(--line);border-radius:11px;background:var(--soft);padding:15px;display:flex;align-items:end;gap:10px;margin-top:10px}.bar{flex:1;text-align:center;color:var(--muted);font-size:9px}.bar i{display:block;width:70%;margin:auto;background:linear-gradient(var(--cyan),#087fb7);border-radius:5px 5px 0 0}.output{min-height:180px;border:1px solid var(--line);border-radius:10px;background:#030a14;color:#bafbf0;padding:14px;white-space:pre-wrap;font:15px ui-monospace,monospace}
+    .transport{min-height:72px;border:1px solid var(--line);border-radius:14px;background:var(--panel);display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;box-shadow:var(--shadow)}.transport button{height:44px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--text);padding:0 16px}.status{color:var(--muted);padding:0 10px}
+    .modal{position:fixed;inset:0;z-index:20;background:#020713d9;padding:18px;display:none;place-items:center}.modal.open{display:grid}.dialog{width:min(1120px,100%);height:min(850px,94vh);border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-rows:auto auto auto 1fr}.dialog-head{height:68px;border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}.dialog-head h2{margin:0}.close{width:40px;height:40px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--text);font-size:22px}
+    .summary{padding:12px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.summary div,.tracks button{border:1px solid var(--line);border-radius:10px;background:var(--soft);padding:10px}.summary strong{display:block;color:var(--cyan);font-size:20px}.summary span{color:var(--muted);font-size:10px}.tracks{padding:0 16px 12px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.tracks button{color:var(--text);text-align:left}.tracks button.active{border-color:var(--cyan);background:#22d3ee15}.tracks small{display:block;color:var(--muted)}.filters{padding:0 16px 12px;display:grid;grid-template-columns:1fr 190px;gap:8px}.filters input,.filters select{height:42px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--text);padding:0 11px}.lessons{padding:0 16px 16px;overflow:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-content:start}.lesson{min-height:80px;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--text);padding:10px;text-align:left;display:grid;grid-template-columns:40px 1fr;gap:9px;align-items:center}.lesson:hover{border-color:var(--cyan)}.lesson b{width:38px;height:38px;border:1px solid #22d3ee55;border-radius:9px;display:grid;place-items:center;color:var(--cyan);font-size:10px}.lesson strong{font-size:12px}.lesson small{display:block;color:var(--muted);font-size:9px;margin-top:3px}.hidden{display:none!important}
+    @media(max-width:980px){.workspace{grid-template-columns:1fr}.panel{min-height:560px}.code{min-height:430px}.tracks{grid-template-columns:repeat(2,1fr)}.lessons{grid-template-columns:repeat(2,1fr)}}@media(max-width:620px){.app{padding:6px}.top{height:auto;flex-wrap:wrap}.brand{width:100%}.workspace{min-height:0}.summary{grid-template-columns:repeat(2,1fr)}.lessons{grid-template-columns:1fr}.filters{grid-template-columns:1fr}.transport{flex-wrap:wrap}.status{width:100%;text-align:center}}
+  </style>
+</head>
+<body class="light">
+  <div class="app">
+    <header class="top">
+      <div class="brand"><span class="logo">⌘</span> CodeFlow Visualizer</div>
+      <button id="libraryBtn">☰ Learning Library</button>
+      <select id="language" aria-label="Programming language"><option value="python">Python</option><option value="java">Java</option><option value="c">C</option><option value="cpp">C++</option></select>
+      <button id="themeBtn">☀ Day</button>
+    </header>
+
+    <main class="workspace">
+      <section class="panel">
+        <header class="panel-head"><div><span class="kicker">Source code</span><h2 id="lessonTitle">Even or Odd</h2></div><div class="toolbar"><button id="newBtn">New</button><button id="copyBtn">Copy</button></div></header>
+        <div class="editor-body"><textarea id="code" class="code" spellcheck="false" aria-label="Code editor"></textarea><label class="input-row">Runtime input <input id="runtimeInput" value="7" placeholder="Enter values"></label></div>
+      </section>
+
+      <section class="panel">
+        <header class="panel-head"><div><span class="kicker">Generated structure</span><h2>Execution Flow</h2></div><span id="flowStatus" class="kicker">Ready</span></header>
+        <div class="flow"><div id="flowList" class="flow-list"></div></div>
+      </section>
+
+      <section class="panel">
+        <div class="tabs"><button class="active" data-view="explain">Explain</button><button data-view="complexity">Complexity</button><button data-view="output">Output</button></div>
+        <div class="inspector">
+          <div id="explainView" class="view"></div>
+          <div id="complexityView" class="view hidden"></div>
+          <div id="outputView" class="view hidden"><div id="output" class="output">Waiting for output…</div></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="transport">
+      <button id="resetBtn">↻ Reset</button><button id="prevBtn">← Previous</button><button id="runBtn" class="primary">▶ Run</button><button id="nextBtn">Next →</button><span id="status" class="status">Step 1 of 1</span>
+    </footer>
+  </div>
+
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-label="Learning library">
+    <div class="dialog">
+      <header class="dialog-head"><div><span class="kicker">Complete curriculum</span><h2>Learning Library</h2></div><button id="closeBtn" class="close" aria-label="Close">×</button></header>
+      <section class="summary"><div><strong>2,700</strong><span>Learning items</span></div><div><strong>7</strong><span>Major tracks</span></div><div><strong>4</strong><span>Languages</span></div><div><strong id="openedCount">0</strong><span>Lessons opened</span></div></section>
+      <section id="tracks" class="tracks"></section>
+      <section class="filters"><input id="search" placeholder="Search lessons and projects…"><select id="level"><option>All levels</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></section>
+      <section id="lessons" class="lessons"></section>
+    </div>
+  </div>
+
+  <script>
+    const tracks=[
+      ["Basic Concepts",300],["DSA Fundamentals",300],["Data Structures",300],["Algorithms",300],["Advanced",300],["Real-time Projects",300],["Interview Preparation",900]
+    ];
+    const topics={
+      "Basic Concepts":["Variables and Data Types","Input and Output","Operators","Conditions","Loops","Functions","Number Problems","Patterns","Arrays Basics","Strings Basics"],
+      "DSA Fundamentals":["Complexity Analysis","Recursion","Arrays","Strings","Pointers","Searching","Sorting","Hashing","Problem Solving","Testing"],
+      "Data Structures":["Arrays","Linked Lists","Stacks","Queues","Deques","Hash Tables","Trees","BST","Heaps","Graphs"],
+      "Algorithms":["Linear Search","Binary Search","Bubble Sort","Insertion Sort","Merge Sort","Quick Sort","BFS","DFS","Greedy","Dynamic Programming"],
+      "Advanced":["Backtracking","Trie","Segment Tree","Fenwick Tree","Disjoint Set","Shortest Paths","Minimum Spanning Tree","String Matching","Advanced DP","System Design"],
+      "Real-time Projects":["Attendance System","Hospital Triage","Traffic Router","Library Manager","Food Delivery","Banking Ledger","E-commerce Search","Campus Navigation","IoT Monitor","Energy Optimizer"],
+      "Interview Preparation":["Coding Problem","Technical Question","Complexity Defense","Debugging Round","HR Question","Mock Interview","System Design","Data Structure Choice","Algorithm Comparison","Behavioral Round"]
+    };
+    const samples={
+      python:`n = int(input())\nif n % 2 == 0:\n    print("Even")\nelse:\n    print("Odd")`,
+      java:`import java.util.Scanner;\nclass Main {\n    public static void main(String[] args) {\n        Scanner in = new Scanner(System.in);\n        int n = in.nextInt();\n        if (n % 2 == 0) System.out.println("Even");\n        else System.out.println("Odd");\n    }\n}`,
+      c:`#include <stdio.h>\nint main(void) {\n    int n;\n    scanf("%d", &n);\n    if (n % 2 == 0) printf("Even\\n");\n    else printf("Odd\\n");\n    return 0;\n}`,
+      cpp:`#include <iostream>\nusing namespace std;\nint main() {\n    int n; cin >> n;\n    if (n % 2 == 0) cout << "Even\\n";\n    else cout << "Odd\\n";\n    return 0;\n}`
+    };
+    const arraySamples={
+      python:t=>`# ${t}\nvalues = [7, 2, 9, 4, 6]\nresult = 0\nfor value in values:\n    result += value\nprint(result)`,
+      java:t=>`// ${t}\nclass Main { public static void main(String[] a) { int[] values={7,2,9,4,6}; int result=0; for(int value:values) result+=value; System.out.println(result); } }`,
+      c:t=>`/* ${t} */\n#include <stdio.h>\nint main(void){int values[]={7,2,9,4,6},result=0;for(int i=0;i<5;i++)result+=values[i];printf("%d\\n",result);return 0;}`,
+      cpp:t=>`// ${t}\n#include <iostream>\n#include <vector>\nusing namespace std;int main(){vector<int>values{7,2,9,4,6};int result=0;for(int value:values)result+=value;cout<<result<<'\\n';}`
+    };
+    const state={track:"Basic Concepts",lesson:null,steps:[],cursor:0,running:false,opened:new Set(JSON.parse(localStorage.getItem("codeflow-opened")||"[]"))};
+    const $=id=>document.getElementById(id);
+    const code=$("code"),lang=$("language"),runtime=$("runtimeInput");
+
+    function makeLessons(track){
+      const count=tracks.find(x=>x[0]===track)[1], list=topics[track];
+      return Array.from({length:count},(_,i)=>{
+        const topic=list[i%list.length],cycle=Math.floor(i/list.length)+1;
+        let title;
+        if(track==="Real-time Projects") title=`Project ${i+1}: ${topic} · Module ${cycle}`;
+        else if(track==="Interview Preparation") title=i<300?`Coding Problem ${i+1}: ${topic}`:i<800?`Interview Question ${i-299}: ${topic}`:`Mock Interview ${i-799}: ${topic}`;
+        else title=`${topic} · Example ${cycle}`;
+        return {id:`${track}-${i}`,title,track,topic,index:i+1,level:i<count/3?"Beginner":i<2*count/3?"Intermediate":"Advanced"};
+      });
+    }
+    function lessonCode(lesson,language){
+      if(!lesson||lesson.topic==="Conditions")return samples[language];
+      return arraySamples[language](lesson?lesson.title:"Array Example");
+    }
+    function classify(line){
+      const s=line.trim().toLowerCase();
+      if(!s||s.startsWith("#include")||s.startsWith("import ")||s==="{"||s==="}")return null;
+      if(/input|scanf|nextint|cin\\s*>>/.test(s))return"input";
+      if(/print|printf|system\\.out|cout\\s*<</.test(s))return"output";
+      if(/^(if|else if|switch)/.test(s))return"condition";
+      if(/^(for|while|do\\b)/.test(s))return"loop";
+      return"process";
+    }
+    function buildSteps(){
+      const lines=code.value.split("\\n"),steps=[{line:1,text:"Start",kind:"start",why:"Execution begins."}];
+      lines.forEach((raw,i)=>{const kind=classify(raw);if(kind)steps.push({line:i+1,text:raw.trim().slice(0,54),kind,why:explain(raw,kind)});});
+      steps.push({line:lines.length,text:"End",kind:"end",why:"Execution finishes."});
+      state.steps=steps;state.cursor=0;render();
+    }
+    function explain(raw,kind){
+      if(kind==="input")return"Read the runtime input and store it in a variable.";
+      if(kind==="output")return"Display the computed value.";
+      if(kind==="condition")return"Evaluate the decision and follow the matching branch.";
+      if(kind==="loop")return"Repeat the loop body while its continuation rule remains true.";
+      return`Execute this statement once: ${raw.trim()}`;
+    }
+    function executeOutput(){
+      const n=Number(runtime.value.trim().split(/[ ,]+/)[0]||0);
+      if(/%\s*2/.test(code.value))return n%2===0?"Even":"Odd";
+      if(/result\s*\+=|result\s*=\s*result\s*\+/.test(code.value))return"28";
+      const quoted=[...code.value.matchAll(/(?:print|printf|println|cout).*?["']([^"']+)["']/g)].map(x=>x[1].replace(/\\\\n/g,""));
+      return quoted.join("\\n")||"Program trace completed.";
+    }
+    function complexity(){
+      const loop=/\b(for|while)\b/.test(code.value);
+      const functionName=code.value.match(/\b(?:def|function|int|void)\s+(\w+)\s*\(/)?.[1];
+      const recursive=Boolean(functionName&&[...code.value.matchAll(new RegExp(`\\b${functionName}\\s*\\(`,"g"))].length>1);
+      return recursive?{time:"O(n)",space:"O(n)",why:"Recursive calls grow with n and remain on the call stack."}:loop?{time:"O(n)",space:"O(1)",why:"The loop visits each input item once while using fixed extra variables."}:{time:"O(1)",space:"O(1)",why:"No loop or recursion is present, so each statement runs at most once."};
+    }
+    function render(){
+      $("flowList").innerHTML=state.steps.map((s,i)=>`<div class="node ${s.kind} ${i<state.cursor?"done":""} ${i===state.cursor?"active":""}"><span>${escapeHtml(s.text)}</span></div>`).join("");
+      const s=state.steps[state.cursor]||state.steps[0];
+      $("explainView").innerHTML=`<article class="stage"><small>Stage ${state.cursor+1} · Line ${s.line}</small><h3>${escapeHtml(s.text)}</h3><p>${escapeHtml(s.why)}</p></article><article class="stage"><small>What happens next?</small><h3>${state.steps[state.cursor+1]?escapeHtml(state.steps[state.cursor+1].text):"Program completed"}</h3><p>${state.steps[state.cursor+1]?"Execution advances to the next genuine program statement.":"No further statements remain."}</p></article>`;
+      const c=complexity(),heights=c.time==="O(1)"?[35,35,35,35,35]:[12,24,45,75,125];
+      $("complexityView").innerHTML=`<div class="metric-grid"><div class="metric"><span>Time complexity</span><strong>${c.time}</strong></div><div class="metric space"><span>Auxiliary space</span><strong>${c.space}</strong></div></div><article class="stage"><h3>Why?</h3><p>${c.why}</p></article><div class="bars">${heights.map((h,i)=>`<div class="bar"><i style="height:${h}px"></i>n=${[1,2,4,8,16][i]}</div>`).join("")}</div>`;
+      $("output").textContent=state.cursor===state.steps.length-1?executeOutput():"Waiting for output…";
+      $("status").textContent=`Step ${state.cursor+1} of ${state.steps.length}`;
+      $("flowStatus").textContent=state.running?"Running":state.cursor===state.steps.length-1?"Finished":state.cursor?"Paused":"Ready";
+    }
+    function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+    function renderLibrary(){
+      $("tracks").innerHTML=tracks.map(([name,count])=>`<button class="${name===state.track?"active":""}" data-track="${name}"><strong>${name}</strong><small>${count} items</small></button>`).join("");
+      const q=$("search").value.toLowerCase(),level=$("level").value;
+      const list=makeLessons(state.track).filter(x=>(level==="All levels"||x.level===level)&&(!q||x.title.toLowerCase().includes(q)));
+      $("lessons").innerHTML=list.map(x=>`<button class="lesson" data-id="${x.id}"><b>${String(x.index).padStart(3,"0")}</b><span><strong>${escapeHtml(x.title)}</strong><small>${x.level}${state.opened.has(x.id)?" · Opened":""}</small></span></button>`).join("");
+      $("openedCount").textContent=state.opened.size;
+      document.querySelectorAll("[data-track]").forEach(b=>b.onclick=()=>{state.track=b.dataset.track;renderLibrary();});
+      document.querySelectorAll(".lesson").forEach(b=>b.onclick=()=>{const x=makeLessons(state.track).find(v=>v.id===b.dataset.id);loadLesson(x);});
+    }
+    function loadLesson(lesson){
+      state.lesson=lesson;state.opened.add(lesson.id);localStorage.setItem("codeflow-opened",JSON.stringify([...state.opened]));
+      $("lessonTitle").textContent=lesson.title;code.value=lessonCode(lesson,lang.value);$("modal").classList.remove("open");buildSteps();
+    }
+    function stepNext(){if(state.cursor<state.steps.length-1){state.cursor++;render();}}
+    $("runBtn").onclick=()=>{if(state.running){state.running=false;render();return;}if(state.cursor===state.steps.length-1)state.cursor=0;state.running=true;render();const tick=()=>{if(!state.running)return;if(state.cursor>=state.steps.length-1){state.running=false;render();return;}state.cursor++;render();setTimeout(tick,550)};setTimeout(tick,550)};
+    $("nextBtn").onclick=()=>{state.running=false;stepNext()};$("prevBtn").onclick=()=>{state.running=false;state.cursor=Math.max(0,state.cursor-1);render()};$("resetBtn").onclick=()=>{state.running=false;state.cursor=0;render()};
+    $("libraryBtn").onclick=()=>{$("modal").classList.add("open");renderLibrary()};$("closeBtn").onclick=()=>$("modal").classList.remove("open");$("modal").onclick=e=>{if(e.target===$("modal"))$("modal").classList.remove("open")};
+    $("search").oninput=renderLibrary;$("level").onchange=renderLibrary;lang.onchange=()=>{code.value=lessonCode(state.lesson,lang.value);buildSteps()};runtime.oninput=render;
+    $("themeBtn").onclick=()=>{document.body.classList.toggle("light");$("themeBtn").textContent=document.body.classList.contains("light")?"☀ Day":"☾ Night"};
+    $("newBtn").onclick=()=>{code.value="";$("lessonTitle").textContent="New Program";buildSteps()};$("copyBtn").onclick=()=>navigator.clipboard.writeText(code.value);
+    document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));b.classList.add("active");["explain","complexity","output"].forEach(v=>$(v+"View").classList.toggle("hidden",v!==b.dataset.view));});
+    code.oninput=buildSteps;code.value=samples.python;buildSteps();
+  </script>
+</body>
+</html>
